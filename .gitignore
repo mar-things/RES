@@ -1,0 +1,35 @@
+# Security — never commit secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Database (SQLite dev file)
+*.db
+*.sqlite3
+
+# Qt compiled translations (generated files)
+assets/translations/*.qm
+
+# Virtual environments
+venv*/
+.venv/
+env/
+
+# Photos (large binary files — store externally in production)
+assets/photos/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
