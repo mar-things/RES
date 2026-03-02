@@ -271,17 +271,20 @@ def checkout(
     vehicle_id: int,
     process_id: int,
     notes: Optional[str] = None,
+    status: str = "completed",
 ) -> ProcessLog:
     """
     Record a vehicle checking out of a repair process.
 
     Updates the open ProcessLog: sets checkout_time = now and calculates
-    actual_hours. Sets status to 'completed'.
+    actual_hours. Sets status to 'completed' by default (or a custom status
+    like 'rolled_back').
 
     Args:
         vehicle_id: ID of the vehicle leaving the process.
         process_id: ID of the repair process being completed.
         notes:      Optional completion notes from the operator.
+        status:     The status to apply to the log (default: 'completed').
 
     Returns:
         The updated ProcessLog ORM object.
@@ -307,7 +310,7 @@ def checkout(
         now = datetime.utcnow()
         log.checkout_time = now
         log.actual_hours = (now - log.checkin_time).total_seconds() / 3600.0
-        log.status = "completed"
+        log.status = status
         if notes:
             log.notes = (log.notes or "") + f"\n[Checkout] {notes}"
 

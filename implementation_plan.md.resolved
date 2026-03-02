@@ -1,0 +1,439 @@
+# RES — Repair Execution System
+## Mechanical Workshop Management System: Final System Architecture (v3 — Approved)
+
+> [!NOTE]
+> This is the **approved** architecture document. All feedback has been incorporated.
+> Development starts with **Phase 1 (MVP)**.
+
+---
+
+## 1. Technology Stack
+
+| Layer | Technology | Rationale |
+|---|---|---|
+| Language | Python 3.11+ | Your stack |
+| UI Framework | **PySide6** | Qt for desktop MES-style dashboards, dark theme, kiosk mode |
+| i18n / Translations | **Qt Linguist** (`QTranslator` + `.ts`/`.qm` files) | English + Spanish from day one; new languages = new `.ts` file |
+| Database (Dev) | **SQLite** | Zero-config, instant setup |
+| Database (Prod) | **PostgreSQL** | Multi-user, LAN/cloud access; same SQLAlchemy code |
+| ORM | **SQLAlchemy** | Switch DB with one config line; never raw SQL |
+| WhatsApp/SMS (MVP) | `pywhatkit` | Local testing only |
+| WhatsApp/SMS (Prod) | **Twilio API** | Reliable, programmatic — **for clients only** |
+| Charts/KPIs | **PyQtGraph** | Fast real-time charts embedded in Qt, low resource use |
+| Config/Secrets | `.env` + `python-dotenv` | Never hardcode keys |
+| Security | `bcrypt` + SQLAlchemy parameterized queries + TLS | See Section 9 |
+| Packaging | **PyInstaller** | Distribute as `.exe` on workshop PCs |
+| AI Cost Estimator | OpenAI Vision API → local YOLOv8 | Subproject; requirements TBD |
+
+> [!IMPORTANT]
+> **WhatsApp and SMS notifications are for clients only.** Insurance companies access the system through their own dedicated **Insurance Dashboard** (a role-restricted view within the same application), not through messaging.
+
+---
+
+## 2. System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    PRESENTATION LAYER (PySide6)             │
+│                                                             │
+│  Workshop Dashboard │ Vehicle Detail │ Process Control      │
+│  Insurance Dashboard│ Reports & KPIs │ Kiosk Display Board  │
+│  Login Screen       │ Rollback Dialog│ Findings Dialog      │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│                      CORE LAYER                             │
+│                                                             │
+│  process_engine  │ time_tracker  │ findings_manager         │
+│  rollback_manager│ auth_service  │ capacity_tracker         │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│                   DATA LAYER (SQLAlchemy)                   │
+│            SQLite (dev) → PostgreSQL (prod)                 │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+          ┌──────────────────┴──────────────────┐
+          │                                     │
+┌─────────▼──────────┐              ┌───────────▼──────────┐
+│ NOTIFICATION LAYER │              │ COST ESTIMATOR        │
+│ (Twilio — clients) │              │ SUBPROJECT (future)   │
+└────────────────────┘              └───────────────────────┘
+```
+
+---
+
+## 3. Repair Process Pipeline
+
+### Routing by Crash Severity
+
+```
+Vehicle Reception
+      │
+      ▼
+  Crash Severity?
+  ├─ HIGH ──► Mechanic ──► Straightening ──► Preparation to Paint
+  └─ LOW  ──────────────► Straightening ──► Preparation to Paint
+                                                    │
+                                                    ▼
+                                                Painting
+                                                    │
+                                                    ▼
+                                                Assembly
+                                                    │
+                                                    ▼
+                                               Polishing
+                                                    │
+                                                    ▼
+                                           Quality Assurance
+                                           ├─ PASS ──► Delivery
+                                           └─ FAIL ──► ROLLBACK to ANY prior process
+                                                       (with reason + manager approval)
+```
+
+> [!NOTE]
+> QA fail — and any other rollback — can target **any** prior process in the pipeline, not just the immediately previous one. The mechanic selects the target process and provides a written reason.
+
+### Process Table (DB-Seeded — Add new processes without code changes)
+
+| Seq | Process Name | Condition |
+|---|---|---|
+| 1 | Vehicle Reception | Always |
+| 2 | Mechanic Work | High severity only |
+| 3 | Straightening | Always |
+| 4 | Preparation to Paint | Always |
+| 5 | Painting | Always |
+| 6 | Assembly | Always |
+| 7 | Polishing | Always |
+| 8 | Quality Assurance | Always |
+
+---
+
+## 4. Database Schema
+
+### Tables Overview
+
+| Table | Purpose |
+|---|---|
+| `customers` | Client data |
+| `insurance_companies` | Insurer data |
+| `vehicles` | Core entity; linked to customer + insurer |
+| `processes` | Pipeline config (sequence, capacity, hours) |
+| `process_logs` | Check-in/out timestamps per vehicle per process |
+| `process_transitions` | Transit time between checkout of process A and checkin to B |
+| `process_rollbacks` | Vehicle returns to prior step: who, why, when, target process |
+| `findings` | Damage found during repair; cost, SLA timestamps |
+| `parts` | Parts inventory |
+| `suppliers` | Parts suppliers |
+| `repair_parts_used` | Parts consumed per vehicle |
+| `users` | Staff with roles (mechanic / manager / admin / insurance-viewer) |
+| `notification_log` | Audit trail of every client WhatsApp/SMS sent |
+
+### Key Fields
+
+**`processes`** includes:
+- `max_capacity` — how many vehicles the bay can hold simultaneously
+- `sequence_order` — determines pipeline order
+- `required_severity` — NULL = always; 'HIGH' = mechanic only
+
+**`process_logs`** includes:
+- `checkin_time`, `checkout_time` — primary KPI source for all stakeholders
+- `actual_hours` vs. `estimated_hours` — variance = cost variance
+- `status` — waiting / in_progress / completed / rolled_back
+
+**`process_transitions`** includes:
+- `transit_minutes` — time between checkout A and checkin B
+- Captures whether delay is due to capacity (bay full) or staff (bay available but vehicle not moved)
+
+**`findings`** includes:
+- `reported_at` — when finding was recorded
+- `insurance_acknowledged_at` — when insurer confirmed receipt (SLA KPI)
+- `approved_at` — when budget was approved
+- `cost_estimator_ref` — **nullable hook** for future AI cost estimator integration
+
+**`process_rollbacks`** includes:
+- `from_process_id`, `to_process_id` — can jump multiple steps back
+- `reason` — mandatory text
+- `approved_by`, `approved_at` — full audit trail
+
+### Capacity Tracking
+
+Each process has `max_capacity` (configurable). The system:
+1. Shows **current occupancy vs. capacity** on the dashboard for each bay
+2. When a vehicle checks out, the system checks if the next process has available space
+3. If capacity is full → status shown as **"Waiting — Bay Full"** (capacity block)
+4. If capacity is free but vehicle is not moved → timer flags as **"Waiting — Staff Delay"**
+5. Both waiting reasons are logged in `process_logs.status` for reporting
+
+---
+
+## 5. Key Workflows
+
+### 5.1 Check-in to a Process
+```
+Operator: Select vehicle → Select process → Click "Check In"
+→ Creates PROCESS_LOG with checkin_time = now()
+→ Sends client WhatsApp/SMS: "Vehicle has entered [Process Name]"
+→ Dashboard refreshes: vehicle shows in that process bay with live timer
+→ Bay occupancy counter increments
+```
+
+### 5.2 Check-out from a Process
+```
+Operator: Click "Check Out"
+→ PROCESS_LOG: checkout_time = now(), actual_hours calculated
+→ PROCESS_TRANSITION recorded: transit_minutes begins counting  
+→ Client WhatsApp/SMS: "Vehicle completed [Process Name]"
+→ Dashboard: vehicle moves to "In Transit" state
+→ Bay occupancy counter decrements
+```
+
+### 5.3 Finding Discovered
+```
+Mechanic: "Report Finding"
+→ findings_dialog: description, cost (manual for now), optional photo
+   [Future hook: "Use Cost Estimator" button → will call AI engine]
+→ FINDING created with reported_at = now()
+→ Insurance Dashboard: immediately shows new finding alert (red badge)
+→ Insurer views finding in their dashboard → clicks "Acknowledge"
+   → insurance_acknowledged_at stamped (SLA measured)
+→ Insurer approves budget → approved_at stamped
+→ Repair continues
+```
+
+### 5.4 Process Rollback / QA Fail
+```
+Manager/QA: "Roll Back Vehicle"
+→ rollback_dialog:
+   - Select TARGET process (any prior, not just previous)
+   - Write mandatory reason
+→ Requires manager/admin role approval
+→ PROCESS_ROLLBACK record created (from, to, reason, approved_by, approved_at)
+→ New PROCESS_LOG checkin created at target process
+→ Vehicle timeline shows rollback event clearly in history
+→ Nothing is ever deleted — full audit trail
+```
+
+---
+
+## 6. Stakeholder Views
+
+### 6.1 Workshop Dashboard (Manager/Admin)
+- Kanban board: one column per process, vehicle cards with elapsed timer
+- Bay capacity indicators: e.g. "Painting: 2/3 bays used"
+- Waiting vehicles: color-coded (capacity block vs. staff delay)
+- Alerts panel: findings awaiting insurer acknowledgment
+- Real-time auto-refresh every 30 seconds (`QTimer`)
+
+### 6.2 Insurance Company Dashboard *(in-system, role-restricted)*
+- Accessible via login with role `insurance-viewer`
+- Each insurer sees **only their own vehicles**
+- KPIs: check-in/out timestamps, actual vs. estimated time, time saved, cost reduction
+- Findings queue: pending acknowledgment + budget approval
+- SLA metrics: average time from finding → acknowledgment → approval
+- No WhatsApp/SMS — the dashboard is their communication channel
+
+### 6.3 Client Notifications (WhatsApp/SMS only)
+- Check-in / check-out → automated message per process
+- Finding discovered → "Additional work found, awaiting insurance approval"
+- QA Pass → "Your vehicle is ready for pickup"
+- All logged in `notification_log`
+
+### 6.4 Workshop Floor Kiosk View
+- Fullscreen PySide6 on any networked PC
+- Shows all active vehicles, current process bay, elapsed time
+- Color-coded: on-time (green), near deadline (amber), overdue (red)
+- No PII displayed (license plate only, no names)
+
+---
+
+## 7. Internationalization (i18n)
+
+English and Spanish supported from day one. New languages can be added later without code changes.
+
+| Tool | Role |
+|---|---|
+| `QTranslator` (Qt built-in) | Loads `.qm` translation file at runtime |
+| `Qt Linguist` | Manages `.ts` source translation files |
+| `lupdate` | Extracts all translatable strings from Python source |
+| `lrelease` | Compiles `.ts` → `.qm` binary used by Qt |
+
+**Implementation rule**: Every user-facing string in Python must use `self.tr("...")` or `QCoreApplication.translate(...)`. Never hardcode display text. This is enforced from the first line of UI code.
+
+```
+assets/
+└── translations/
+    ├── res_en.ts   ← English source
+    ├── res_es.ts   ← Spanish source
+    ├── res_en.qm   ← Compiled English binary
+    └── res_es.qm   ← Compiled Spanish binary
+```
+
+Language switch is available in Settings — no restart required.
+
+---
+
+## 8. Code Documentation Standard
+
+> [!IMPORTANT]
+> **Every module, class, and function must be documented.** This is a hard requirement to enable future debugging, maintenance, and onboarding of new developers.
+
+Standard used: **Google-style docstrings** (readable without tools, works with IDEs and auto-doc generators).
+
+```python
+def checkin(self, vehicle_id: int, process_id: int, user_id: int) -> ProcessLog:
+    """
+    Records a vehicle checking in to a repair process.
+
+    Creates a new ProcessLog entry with the current timestamp as
+    checkin_time. Also decrements the available capacity counter for
+    the target process bay.
+
+    Args:
+        vehicle_id: ID of the vehicle entering the process.
+        process_id: ID of the repair process (from the processes table).
+        user_id:    ID of the staff member performing the check-in.
+
+    Returns:
+        The newly created ProcessLog ORM object.
+
+    Raises:
+        CapacityFullError: If the target process bay has no available space.
+        VehicleAlreadyInProcessError: If vehicle is already active in this process.
+    """
+```
+
+---
+
+## 9. Cybersecurity
+
+| Threat | Mitigation |
+|---|---|
+| Password theft | `bcrypt` — never store plaintext passwords |
+| SQL Injection | SQLAlchemy parameterized queries — no raw string SQL |
+| Unauthorized access | Role-based: mechanic / manager / admin / insurance-viewer |
+| Cross-role data leakage | Insurance users see **only their own company's vehicles** |
+| Session hijacking | Session tokens with expiry; re-auth for sensitive actions |
+| DB exposure | PostgreSQL on private LAN; cloud access via VPN or TLS |
+| API key leakage | All credentials in `.env`, `.env` in `.gitignore` |
+| Physical access | Kiosk shows no PII; portal requires login |
+| Audit trail | Soft deletes only — no data is ever permanently removed |
+| Backup & Recovery | Daily automated DB backup; quarterly restore test |
+
+---
+
+## 10. Project Folder Structure
+
+```
+RES/
+├── main.py                          # Entry point
+├── config.py                        # DB URL, Twilio keys, app config
+├── .env                             # Secrets — never commit to git
+│
+├── core/
+│   ├── database.py                  # SQLAlchemy engine + session factory
+│   ├── models.py                    # All ORM models (single source of truth)
+│   ├── process_engine.py            # Check-in/out, routing, capacity checks
+│   ├── time_tracker.py              # Elapsed, remaining, transit time
+│   ├── findings_manager.py          # Findings, SLA tracking, approval flow
+│   ├── rollback_manager.py          # Process rollback + audit trail
+│   ├── capacity_tracker.py          # Bay occupancy tracking
+│   └── auth_service.py              # Login, roles, session management
+│
+├── services/
+│   ├── notification_service.py      # Dispatcher: selects channel by recipient type
+│   ├── whatsapp_provider.py         # pywhatkit (MVP) / Twilio adapter
+│   ├── sms_provider.py              # Twilio SMS adapter
+│   └── report_generator.py          # KPI aggregation for dashboards + exports
+│
+├── ui/
+│   ├── main_window.py               # App shell, navigation, role gating
+│   ├── login_screen.py              # Login UI
+│   ├── dashboard_widget.py          # Workshop Kanban board
+│   ├── vehicle_card_widget.py       # Vehicle card with live timer
+│   ├── vehicle_detail_view.py       # Full vehicle timeline + rollback history
+│   ├── process_control_panel.py     # Check-in / Check-out controls + capacity display
+│   ├── findings_dialog.py           # Report finding (manual cost + future AI hook)
+│   ├── rollback_dialog.py           # Process rollback (select target + reason)
+│   ├── insurance_dashboard.py       # Insurance-only KPI view (role-gated)
+│   ├── reports_view.py              # Charts, time saved, cost reduction
+│   └── kiosk_view.py                # Fullscreen floor display (no PII)
+│
+├── assets/
+│   ├── icons/
+│   ├── photos/                      # Vehicle + finding photos
+│   ├── styles/
+│   │   └── theme.qss                # Qt dark theme
+│   └── translations/
+│       ├── res_en.ts                # English strings
+│       ├── res_es.ts                # Spanish strings
+│       ├── res_en.qm
+│       └── res_es.qm
+│
+├── cost_estimator/                  # AI Subproject — requirements TBD
+│   ├── README.md                    # Subproject scope definition
+│   ├── estimator_app.py
+│   ├── photo_handler.py
+│   ├── ai_engine.py
+│   ├── severity_classifier.py
+│   ├── cost_model.py
+│   ├── db_writer.py                 # Writes results to main RES DB
+│   └── models/                      # Local ML model files (Phase 2)
+│
+└── tests/
+    ├── test_process_engine.py
+    ├── test_time_tracker.py
+    ├── test_findings_manager.py
+    ├── test_rollback_manager.py
+    ├── test_capacity_tracker.py
+    └── test_auth_service.py
+```
+
+---
+
+## 11. Phased Roadmap
+
+### Phase 1 — MVP: Core Tracking *(Start here)*
+- [ ] Scaffold folder structure + install dependencies
+- [ ] `core/models.py` — all ORM models
+- [ ] `core/process_engine.py` — check-in/out + severity routing
+- [ ] `core/capacity_tracker.py` — bay occupancy
+- [ ] `core/time_tracker.py` — elapsed + transit time
+- [ ] Basic PySide6 dashboard (Kanban board)
+- [ ] i18n scaffolding (English + Spanish `.ts` files)
+- [ ] `pywhatkit` client notifications
+
+### Phase 2 — Findings & Insurance Dashboard
+- [ ] `core/findings_manager.py` + findings dialog (with AI cost estimator hook)
+- [ ] Insurance Dashboard (role-gated view, company-scoped data)
+- [ ] `core/rollback_manager.py` + rollback dialog
+
+### Phase 3 — Time Intelligence & Reporting
+- [ ] Transit time tracking
+- [ ] Actual vs. estimated time reports
+- [ ] KPI charts (PyQtGraph)
+- [ ] PDF/Excel export
+
+### Phase 4 — Cost & Parts
+- [ ] Parts inventory + suppliers
+- [ ] Parts used per vehicle
+- [ ] Full cost tracking
+
+### Phase 5 — Production Hardening
+- [ ] PostgreSQL migration
+- [ ] Twilio (WhatsApp + SMS)
+- [ ] Role-based login (`bcrypt`)
+- [ ] Cybersecurity hardening
+- [ ] Kiosk display mode
+- [ ] PyInstaller packaging
+
+### Phase 6 — AI Cost Estimator Subproject
+- [ ] Define full requirements
+- [ ] Smartphone photo upload
+- [ ] OpenAI Vision API integration
+- [ ] Severity classifier + cost model
+- [ ] Local YOLOv8 model (Phase 2 of subproject)
+
+---
+
+## ✅ Plan Approved — Ready for Phase 1 Execution

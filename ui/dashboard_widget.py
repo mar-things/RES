@@ -20,12 +20,15 @@ from typing import Optional
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel,
     QScrollArea, QFrame, QPushButton, QSizePolicy,
+    QMenu,
 )
+from PySide6.QtGui import QCursor
 from PySide6.QtCore import Qt, QTimer
 
 from core.process_engine import get_active_processes, get_all_active_vehicle_logs
 from core.capacity_tracker import CapacityTracker
 from ui.vehicle_card_widget import VehicleCardWidget
+from ui.dialogs.register_vehicle_dialog import RegisterVehicleDialog
 
 
 # Auto-refresh interval in milliseconds (30 seconds)
@@ -70,6 +73,12 @@ class DashboardWidget(QWidget):
         title.setObjectName("sectionTitle")
         header.addWidget(title)
         header.addStretch()
+
+        # Add Vehicle button
+        add_btn = QPushButton(self.tr("+ Add Vehicle"))
+        add_btn.setFixedWidth(140)
+        add_btn.clicked.connect(self._on_new_vehicle)
+        header.addWidget(add_btn)
 
         refresh_btn = QPushButton(self.tr("↻  Refresh"))
         refresh_btn.setObjectName("secondaryButton")
@@ -201,15 +210,51 @@ class DashboardWidget(QWidget):
     # Event handlers
     # ------------------------------------------------------------------
 
-    def _on_card_clicked(self, vehicle_id: int) -> None:
+    def _on_new_vehicle(self) -> None:
         """
-        Handle a vehicle card click.
+        Open the Register Vehicle dialog and refresh the dashboard
+        if registration was successful.
+        """
+        dlg = RegisterVehicleDialog(self)
+        if dlg.exec():
+            # If the user clicked 'Register & Check In' and it succeeded
+            self.refresh()
+            print(f"[Dashboard] New vehicle registered: id={dlg.new_vehicle_id}")
 
-        In Phase 1 this is a no-op (vehicle detail view comes in Phase 1+).
-        Wire this up to the vehicle detail view when it is built.
+    def _on_card_clicked(self, vehicle_id: int, process_id: int) -> None:
+        """
+        Handle a vehicle card click by showing a context menu.
+
+        The menu offers actions that make sense for the current phase:
+        - Report Finding (opens FindingsDialog)
+        - Roll Back Vehicle (opens RollbackDialog)
 
         Args:
             vehicle_id: The ID of the clicked vehicle.
+            process_id: The ID of the process the vehicle is currently in.
         """
-        # TODO Phase 1+: open Vehicle Detail view for vehicle_id
-        print(f"[Dashboard] Vehicle card clicked: id={vehicle_id}")
+        menu = QMenu(self)
+        report_act = menu.addAction(self.tr("Report Finding"))
+        rollback_act = menu.addAction(self.tr("Roll Back"))
+        action = menu.exec(QCursor.pos())
+
+        if action == report_act:
+            # determine active log id
+            from core.process_engine import get_active_log
+            log = get_active_log(vehicle_id, process_id)
+            log_id = log.id if log else None
+            from ui.findings_dialog import FindingsDialog
+
+            dlg = FindingsDialog(vehicle_id=vehicle_id, process_log_id=log_id, parent=self)
+            if dlg.exec():
+                # refresh dashboard after reporting
+                self.refresh()
+                print(f"[Dashboard] Finding reported for vehicle {vehicle_id}")
+
+        elif action == rollback_act:
+            from ui.rollback_dialog import RollbackDialog
+
+            dlg = RollbackDialog(vehicle_id=vehicle_id, current_process_id=process_id, parent=self)
+            if dlg.exec():
+                self.refresh()
+                print(f"[Dashboard] Vehicle {vehicle_id} rolled back")

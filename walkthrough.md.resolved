@@ -1,0 +1,135 @@
+# RES Phase 1 — Build Walkthrough
+
+## What Was Built
+
+Phase 1 delivers the complete foundation of the Repair Execution System.
+
+---
+
+## Project Structure Created
+
+```
+RES/
+├── main.py              ← App entry point (Qt bootstrap, theme, i18n)
+├── config.py            ← All settings from .env (single source of truth)
+├── .env                 ← Secrets & DB URL (never commit to git)
+├── .gitignore
+│
+├── core/
+│   ├── database.py      ← SQLAlchemy engine + session factory (SQLite/PostgreSQL)
+│   ├── models.py        ← All 12 ORM tables
+│   ├── seeds.py         ← Default pipeline + admin user seeding
+│   ├── process_engine.py← Check-in/out, routing, capacity, transit time
+│   ├── capacity_tracker.py ← Bay occupancy, capacity-block vs staff-delay
+│   └── time_tracker.py  ← Elapsed, remaining, transit, variance, color-coding
+│
+├── services/
+│   ├── auth_service.py  ← bcrypt login, roles, session
+│   └── notification_service.py ← Client WhatsApp/SMS dispatcher
+│
+├── ui/
+│   ├── main_window.py   ← Shell: sidebar nav + role gating
+│   ├── login_screen.py  ← Login card with error handling
+│   ├── dashboard_widget.py ← Kanban board with auto-refresh
+│   └── vehicle_card_widget.py ← Vehicle card with color-coded timers
+│
+├── assets/
+│   └── styles/theme.qss ← Full dark industrial Qt stylesheet
+│
+├── cost_estimator/      ← Subproject placeholder (Phase 7)
+└── tests/               ← Test package (Phase 8)
+```
+
+---
+
+## Database Verification
+
+All 12 tables created and 8 repair pipeline processes seeded:
+
+| Seq | Process | Capacity | Severity |
+|---|---|---|---|
+| 1 | Vehicle Reception | 1 | All |
+| 2 | Mechanic Work | 2 | HIGH only |
+| 3 | Straightening | 2 | All |
+| 4 | Preparation to Paint | 2 | All |
+| 5 | Painting | 1 | All |
+| 6 | Assembly | 2 | All |
+| 7 | Polishing | 2 | All |
+| 8 | Quality Assurance | 1 | All |
+
+Default admin user created: `admin / admin1234` *(change immediately after first login)*
+
+---
+
+## Key Design Decisions Implemented
+
+- **SQLAlchemy ORM** — switch to PostgreSQL by changing one [.env](file:///c:/Users/mxgs2/Workspaces/VSCode_Antigravity/Python/RES/.env) line
+- **Soft deletes** on Vehicle — nothing is ever permanently removed
+- **`cost_estimator_ref` hook** on Finding — ready for Phase 7 AI integration
+- **`max_capacity`** on Process — powers bay occupancy and delay-reason tracking
+- **`insurance_acknowledged_at`** on Finding — SLA KPI for insurance response time
+- **All user-facing strings** use `self.tr()` — i18n ready from day one
+- **Dark theme** with color-coded vehicle cards (green/amber/red)
+- **Role-based navigation** — insurance-viewer sees only Insurance Dashboard
+
+---
+
+## How to Run
+
+```powershell
+# Activate venv and launch
+.\venv_Qt\Scripts\python.exe main.py
+
+# Or reset and re-seed the database
+.\venv_Qt\Scripts\python.exe -c "from core.database import init_db; from core.seeds import seed_all; init_db(); seed_all()"
+```
+
+**Login:** [admin](file:///c:/Users/mxgs2/Workspaces/VSCode_Antigravity/Python/RES/core/seeds.py#64-87) / `admin1234`
+
+---
+
+## 🎬 Phase 2 Demo: Registration & Kanban
+The system is now fully interactive. You can log in, add vehicles, and see them move through the workflow.
+
+### 🚗 Vehicle Registration
+1. Click the **+ Add Vehicle** button on the Dashboard.
+2. Fill out the **Customer** and **Vehicle** info.
+3. Choose **Crash Severity** (LOW skips the Mechanic bay; HIGH goes through the full pipeline).
+4. Click **Register & Check In**. The vehicle is saved to the DB and automatically checked into the **Reception** bay.
+
+### 📋 Live Kanban Board
+- The dashboard auto-refreshes every 30 seconds.
+- Vehicle cards appear in their assigned process column.
+- **Color-coding**: Cards turn Green/Amber/Red based on elapsed vs. estimated time.
+- **Capacity**: Process headers show real-time bay occupancy (e.g., `1/2`).
+
+### 🛡️ Feature Roadmap (Placeholders)
+To avoid "empty screen" confusion, tabs like **Insurance**, **Reports**, and **Settings** now show placeholder messages with their planned Phase 3-6 features.
+
+---
+
+## 🔒 Phase 3 Step 1: Insurance Dashboard
+Insurance users (role `insurance-viewer`) can now log in and access a
+company‑scoped portal. It shows the current queue of pending findings,
+with rapid actions to acknowledge, approve or reject each one. A simple
+KPI banner displays the total number of open findings.
+
+To try it out:
+1. Create or use an existing user with role `insurance-viewer` and an
+   associated insurance company (see `core/seeds.py` for examples).
+2. Log in as that user.
+3. Click **🏢 Insurance** in the sidebar – the dashboard will load.
+
+(This feature is the first step toward full SLA metrics and insurer
+analytics in later phases.)
+
+## 🛠️ Verification
+- [x] Database: [vehicle_service.py](file:///c:/Users/mxgs2/Workspaces/VSCode_Antigravity/Python/RES/services/vehicle_service.py) handles atomic customer/vehicle/log creation.
+- [x] UI: [RegisterVehicleDialog](file:///c:/Users/mxgs2/Workspaces/VSCode_Antigravity/Python/RES/ui/dialogs/register_vehicle_dialog.py#36-308) validates required fields before submission.
+- [x] UI: Dashboard refreshes automatically after a successful registration.
+- [x] UI: Sidebar correctly gates tabs based on user roles (Admin sees all; Mechanic sees Dashboard only).
+
+## Next: Phase 2
+- Findings dialog (with AI cost estimator hook)
+- Insurance Dashboard (role-gated, company-scoped KPIs)
+- Process rollback workflow (select any prior process + mandatory reason)

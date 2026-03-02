@@ -33,14 +33,17 @@ class VehicleCardWidget(QFrame):
 
     Signals:
         card_clicked: Emitted when the card is clicked.
-                      Carries the vehicle_id (int).
+                      Carries the vehicle_id and process_id (int, int).
     """
+    
+    card_clicked = Signal(int, int)
 
-    card_clicked = Signal(int)
-
-    def __init__(self, vehicle_data: dict, parent=None) -> None:
-        """
-        Initialise and populate the card.
+    def __init__(
+        self,
+        vehicle_data: dict,
+        parent: Optional[QFrame] = None,
+    ) -> None:
+        """Initialize the card with a data dictionary.
 
         Args:
             vehicle_data: Dict from process_engine.get_all_active_vehicle_logs().
@@ -50,10 +53,10 @@ class VehicleCardWidget(QFrame):
             parent: Optional Qt parent widget.
         """
         super().__init__(parent)
-        self._data = vehicle_data
         self.setObjectName("vehicleCard")
-        self.setProperty("color", vehicle_data.get("color", "green"))
         self.setCursor(Qt.PointingHandCursor)
+        self._data = vehicle_data
+        self.setProperty("color", vehicle_data.get("color", "green"))
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -111,8 +114,11 @@ class VehicleCardWidget(QFrame):
             layout.addWidget(ci_label)
 
     def mousePressEvent(self, event) -> None:
-        """Emit card_clicked with the vehicle_id when the card is clicked."""
-        self.card_clicked.emit(self._data.get("vehicle_id", -1))
+        """Emit card_clicked with the vehicle_id and process_id when the card is clicked."""
+        self.card_clicked.emit(
+            self._data.get("vehicle_id", -1),
+            self._data.get("process_id", -1),
+        )
         super().mousePressEvent(event)
 
     def update_data(self, vehicle_data: dict) -> None:

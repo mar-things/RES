@@ -20,6 +20,28 @@ from PySide6.QtGui import QFont
 from services.auth_service import get_current_user, logout, has_role
 from ui.dashboard_widget import DashboardWidget
 from ui.login_screen import LoginScreen
+from ui.insurance_dashboard import InsuranceDashboard
+
+
+class PlaceholderWidget(QWidget):
+    """
+    A simple centered message for features still under development.
+    """
+    def __init__(self, title: str, subtitle: str, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignCenter)
+
+        t = QLabel(title)
+        t.setFont(QFont("Segoe UI", 24, QFont.Bold))
+        t.setStyleSheet("color: #3b82f6;")
+        t.setAlignment(Qt.AlignCenter)
+        layout.addWidget(t)
+
+        sub = QLabel(subtitle)
+        sub.setObjectName("subtitle")
+        sub.setAlignment(Qt.AlignCenter)
+        layout.addWidget(sub)
 
 
 class MainWindow(QMainWindow):
@@ -89,11 +111,26 @@ class MainWindow(QMainWindow):
         self._dashboard = DashboardWidget()
         self._stack.addWidget(self._dashboard)
 
-        # Future pages (placeholder widgets for now):
-        self._stack.addWidget(QWidget())   # Index 1: Vehicle Detail (Phase 1+)
-        self._stack.addWidget(QWidget())   # Index 2: Insurance Dashboard (Phase 2)
-        self._stack.addWidget(QWidget())   # Index 3: Reports (Phase 3)
-        self._stack.addWidget(QWidget())   # Index 4: Settings / Admin (Phase 5)
+        # Index 1: Vehicle Detail (Phase 1+)
+        self._stack.addWidget(PlaceholderWidget(
+            self.tr("Vehicle Detail View"),
+            self.tr("Phase 2: Full vehicle history, findings, and process controls.")
+        ))
+
+        # Index 2: Insurance Dashboard (Phase 3)
+        self._stack.addWidget(InsuranceDashboard())
+
+        # Index 3: Reports (Phase 4)
+        self._stack.addWidget(PlaceholderWidget(
+            self.tr("Advanced Analytics"),
+            self.tr("Phase 4: Transit time, efficiency, and cost reporting.")
+        ))
+
+        # Index 4: Settings / Admin (Phase 6)
+        self._stack.addWidget(PlaceholderWidget(
+            self.tr("System Settings"),
+            self.tr("Phase 6: User management, language, and theme config.")
+        ))
 
         self._stack.setCurrentIndex(0)
         self.setCentralWidget(central)
