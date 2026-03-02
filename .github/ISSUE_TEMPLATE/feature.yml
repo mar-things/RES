@@ -1,0 +1,25 @@
+
+name: Feature request
+description: Propose a change or new feature
+title: "[FEAT] "
+labels: ["feature"]
+body:
+  - type: textarea
+    attributes:
+      label: Goal
+      description: What value does this create?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Scope boundaries
+      description: What is in / out of scope?
+  - type: textarea
+    attributes:
+      label: Acceptance criteria
+      description: Bullet list of verifiable outcomes
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Notes / references

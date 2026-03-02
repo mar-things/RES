@@ -1,0 +1,20 @@
+
+name: Task
+description: Engineering task / refactor / maintenance
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: textarea
+    attributes:
+      label: Objective
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Files / folders likely impacted
+  - type: textarea
+    attributes:
+      label: Definition of done
+      description: Tests, docs, CI green, etc.
+    validations:
+      required: true

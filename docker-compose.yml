@@ -1,0 +1,31 @@
+
+version: "3.9"
+
+services:
+  # Optional Postgres for later migration / integration testing.
+  postgres:
+    image: postgres:16
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_USER: res
+      POSTGRES_PASSWORD: res
+      POSTGRES_DB: res
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Optional pgAdmin for convenience.
+  pgadmin:
+    image: dpage/pgadmin4:8
+    profiles: ["postgres"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
