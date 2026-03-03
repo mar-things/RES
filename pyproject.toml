@@ -1,0 +1,32 @@
+[project]
+name = "res"
+version = "0.1.0"
+description = "RES desktop application"
+requires-python = ">=3.11"
+
+dependencies = [
+  "pyside6==6.10.2",
+  "sqlalchemy==2.0.47",
+  "bcrypt==5.0.0",
+  "python-dotenv==1.2.2",
+]
+
+[dependency-groups]
+dev = [
+  "pytest",
+  "ruff",
+  "mypy",
+  "pyinstaller",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true

@@ -1,0 +1,9 @@
+bcrypt==5.0.0
+dotenv==0.9.9
+greenlet==3.3.2
+PySide6_Addons==6.10.2
+PySide6_Essentials==6.10.2
+python-dotenv==1.2.2
+shiboken6==6.10.2
+SQLAlchemy==2.0.47
+typing_extensions==4.15.0
