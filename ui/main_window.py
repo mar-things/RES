@@ -27,6 +27,7 @@ class PlaceholderWidget(QWidget):
     """
     A simple centered message for features still under development.
     """
+
     def __init__(self, title: str, subtitle: str, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -181,8 +182,8 @@ class MainWindow(QMainWindow):
         # Navigation buttons
         self._nav_dashboard = self._nav_button(self.tr("📋  Dashboard"), 0)
         self._nav_insurance = self._nav_button(self.tr("🏢  Insurance"), 2)
-        self._nav_reports   = self._nav_button(self.tr("📊  Reports"), 3)
-        self._nav_settings  = self._nav_button(self.tr("⚙️  Settings"), 4)
+        self._nav_reports = self._nav_button(self.tr("📊  Reports"), 3)
+        self._nav_settings = self._nav_button(self.tr("⚙️  Settings"), 4)
 
         layout.addWidget(self._nav_dashboard)
         layout.addWidget(self._nav_insurance)

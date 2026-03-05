@@ -8,7 +8,7 @@ RUN rm -f /etc/apt/sources.list.d/yarn.list \
     && sed -i '/dl\.yarnpkg\.com/d' /etc/apt/sources.list \
     || true
 
-# System deps for PySide6 / Qt
+# System deps for PySide6 / Qt + Unicode/emoji support
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     libgl1 \
@@ -38,7 +38,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxkbcommon-x11-0 \
     libfontconfig1 \
     libfreetype6 \
+    locales \
+    fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure UTF-8 locale and environment for emoji support
+RUN sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen en_US.UTF-8
+
+ENV LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    LC_CTYPE=en_US.UTF-8
 
 RUN pip install --no-cache-dir -U pip uv ruff mypy pytest
 
