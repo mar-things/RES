@@ -1,0 +1,287 @@
+{
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\config.py": {
+    "mtime": 1772055215.9756126,
+    "ast_hash": "756f90efe4880b52e077081558e8c0be",
+    "semantic_hash": "756f90efe4880b52e077081558e8c0be"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\main.py": {
+    "mtime": 1772057500.0215318,
+    "ast_hash": "64c3f1d89e7edfb5dd6c7d6da1635d03",
+    "semantic_hash": "64c3f1d89e7edfb5dd6c7d6da1635d03"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.devcontainer\\devcontainer.json": {
+    "mtime": 1772548577.8051999,
+    "ast_hash": "463bb841cdb7ddfc2cf88b76afaee5c3",
+    "semantic_hash": "463bb841cdb7ddfc2cf88b76afaee5c3"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\Archive\\functional_script.py": {
+    "mtime": 1772058408.1925085,
+    "ast_hash": "4193af8d25f1155d0062be59e3c7d4ea",
+    "semantic_hash": "4193af8d25f1155d0062be59e3c7d4ea"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\Archive\\ui_mainwindow.py": {
+    "mtime": 1771195000.771218,
+    "ast_hash": "c59d8b5d2eef98bce9d5f2ef867bf446",
+    "semantic_hash": "c59d8b5d2eef98bce9d5f2ef867bf446"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\Archive\\Whatsapp.py": {
+    "mtime": 1771155844.776036,
+    "ast_hash": "de8dfa1030b3e0cda642b7268b593e3f",
+    "semantic_hash": "de8dfa1030b3e0cda642b7268b593e3f"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\capacity_tracker.py": {
+    "mtime": 1772055397.8793333,
+    "ast_hash": "7a1cdd660031b7978347a4a607ff065e",
+    "semantic_hash": "7a1cdd660031b7978347a4a607ff065e"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\database.py": {
+    "mtime": 1772057791.3099623,
+    "ast_hash": "d3d4e3da4b4b18bc3d02d46df14779ff",
+    "semantic_hash": "d3d4e3da4b4b18bc3d02d46df14779ff"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\findings_manager.py": {
+    "mtime": 1772120808.6443143,
+    "ast_hash": "faafa35d09d98a0523e243fb766809ca",
+    "semantic_hash": "faafa35d09d98a0523e243fb766809ca"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\models.py": {
+    "mtime": 1772055325.2217221,
+    "ast_hash": "ddf6ed9e3d995a8896e827e2dd4fd53f",
+    "semantic_hash": "ddf6ed9e3d995a8896e827e2dd4fd53f"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\process_engine.py": {
+    "mtime": 1772105737.0608315,
+    "ast_hash": "65cef6e9dadad3b07c194d0ab6170682",
+    "semantic_hash": "65cef6e9dadad3b07c194d0ab6170682"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\rollback_manager.py": {
+    "mtime": 1772106272.2442927,
+    "ast_hash": "7af7309a6bbdb516c04b842298b0d3fe",
+    "semantic_hash": "7af7309a6bbdb516c04b842298b0d3fe"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\seeds.py": {
+    "mtime": 1772055327.1539724,
+    "ast_hash": "cb68cbb078e7d9fa6a504ee4d6fe9059",
+    "semantic_hash": "cb68cbb078e7d9fa6a504ee4d6fe9059"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\time_tracker.py": {
+    "mtime": 1772055399.8461516,
+    "ast_hash": "e72282059d345a83182e49dc7cf3b354",
+    "semantic_hash": "e72282059d345a83182e49dc7cf3b354"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\core\\__init__.py": {
+    "mtime": 1772055635.0914066,
+    "ast_hash": "0dc3ca9444c5b38bfabc439810764d69",
+    "semantic_hash": "0dc3ca9444c5b38bfabc439810764d69"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\__init__.py": {
+    "mtime": 1772055643.2580473,
+    "ast_hash": "e3ebffc6ff21c21ba85f0d02fb92f076",
+    "semantic_hash": "e3ebffc6ff21c21ba85f0d02fb92f076"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\services\\auth_service.py": {
+    "mtime": 1772057489.663234,
+    "ast_hash": "00f90db17719a6ad56df17fe09ea9c89",
+    "semantic_hash": "00f90db17719a6ad56df17fe09ea9c89"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\services\\findings_service.py": {
+    "mtime": 1772120808.6433015,
+    "ast_hash": "f0ce5a8331074cd3ed7b6cddcfe366a6",
+    "semantic_hash": "f0ce5a8331074cd3ed7b6cddcfe366a6"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\services\\notification_service.py": {
+    "mtime": 1772055480.0113912,
+    "ast_hash": "662d252450ef56584d2755fcbb887612",
+    "semantic_hash": "662d252450ef56584d2755fcbb887612"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\services\\vehicle_service.py": {
+    "mtime": 1772058086.1965523,
+    "ast_hash": "23b51df8e2446416331b27d5af5406cf",
+    "semantic_hash": "23b51df8e2446416331b27d5af5406cf"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\services\\__init__.py": {
+    "mtime": 1772055637.1110754,
+    "ast_hash": "b96e92341d8c139ae4bd5666d0a0b26c",
+    "semantic_hash": "b96e92341d8c139ae4bd5666d0a0b26c"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\tests\\test_findings_manager.py": {
+    "mtime": 1772120817.8625162,
+    "ast_hash": "f073426e48eb4c0b9830b1a26973573e",
+    "semantic_hash": "f073426e48eb4c0b9830b1a26973573e"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\tests\\__init__.py": {
+    "mtime": 1772055641.2020788,
+    "ast_hash": "df8859a201187e834dfd5334d23e8c9b",
+    "semantic_hash": "df8859a201187e834dfd5334d23e8c9b"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\dashboard_widget.py": {
+    "mtime": 1772117491.8815484,
+    "ast_hash": "32765ece11279f9cdec99ced4d3d5afd",
+    "semantic_hash": "32765ece11279f9cdec99ced4d3d5afd"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\insurance_dashboard.py": {
+    "mtime": 1772120808.6459103,
+    "ast_hash": "4cc44abff9ddac7b993a898aaeac3e18",
+    "semantic_hash": "4cc44abff9ddac7b993a898aaeac3e18"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\login_screen.py": {
+    "mtime": 1772055593.4973147,
+    "ast_hash": "ac041476ba66a21e46a840117ff027af",
+    "semantic_hash": "ac041476ba66a21e46a840117ff027af"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\main_window.py": {
+    "mtime": 1772654164.6783516,
+    "ast_hash": "b75b539d60658a4cd9c902097c094185",
+    "semantic_hash": "b75b539d60658a4cd9c902097c094185"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\vehicle_card_widget.py": {
+    "mtime": 1772118531.9844098,
+    "ast_hash": "b5472741002d084245d663e7d0f377bd",
+    "semantic_hash": "b5472741002d084245d663e7d0f377bd"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\__init__.py": {
+    "mtime": 1772055639.1557398,
+    "ast_hash": "c8c301de30be18fe789951dbad9ca88f",
+    "semantic_hash": "c8c301de30be18fe789951dbad9ca88f"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\dialogs\\findings_dialog.py": {
+    "mtime": 1772118531.9844098,
+    "ast_hash": "b6e5ddae4683860eda2a986d6b7e3a0f",
+    "semantic_hash": "b6e5ddae4683860eda2a986d6b7e3a0f"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\dialogs\\register_vehicle_dialog.py": {
+    "mtime": 1772058134.5288093,
+    "ast_hash": "08b119fea9514f20921899d3f1305b93",
+    "semantic_hash": "08b119fea9514f20921899d3f1305b93"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\ui\\dialogs\\__init__.py": {
+    "mtime": 1772058136.4150615,
+    "ast_hash": "d08d63d48e7b4f66e171598c96f32ce6",
+    "semantic_hash": "d08d63d48e7b4f66e171598c96f32ce6"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\docker-compose.yml": {
+    "mtime": 1772455323.6922016,
+    "ast_hash": "8f9dae399cbc4e002ad993fbd6e657d1",
+    "semantic_hash": "8f9dae399cbc4e002ad993fbd6e657d1"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\PyWhatKit_DB.txt": {
+    "mtime": 1771155926.4577484,
+    "ast_hash": "41c61b8f2eeaf84cddb75c85569a5592",
+    "semantic_hash": "41c61b8f2eeaf84cddb75c85569a5592"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\requirements.txt": {
+    "mtime": 1772544294.1426246,
+    "ast_hash": "386f82f3f7a796b2c9f97a2357813ce8",
+    "semantic_hash": "386f82f3f7a796b2c9f97a2357813ce8"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\WORKSPACE_SCAFFOLDING_README.md": {
+    "mtime": 1772455323.7396536,
+    "ast_hash": "f04201ccb9a936a189751af09160c81d",
+    "semantic_hash": "f04201ccb9a936a189751af09160c81d"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\pull_request_template.md": {
+    "mtime": 1772455323.7956214,
+    "ast_hash": "0f8008b943885002dc4ca043d15f283a",
+    "semantic_hash": "0f8008b943885002dc4ca043d15f283a"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\00-team-overview.md": {
+    "mtime": 1772447297.5646377,
+    "ast_hash": "3b29689d81e5309420998c7c3b65478d",
+    "semantic_hash": "3b29689d81e5309420998c7c3b65478d"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\01-product-domain-lead.md": {
+    "mtime": 1772447297.5911863,
+    "ast_hash": "ffc81df81f3b62bcd33cda2768bfff8d",
+    "semantic_hash": "ffc81df81f3b62bcd33cda2768bfff8d"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\02-core-backend-engineer.md": {
+    "mtime": 1772447297.6090517,
+    "ast_hash": "5eb07335465508e7b1419321ac2fa7cc",
+    "semantic_hash": "5eb07335465508e7b1419321ac2fa7cc"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\03-desktop-ui-engineer.md": {
+    "mtime": 1772447297.6244316,
+    "ast_hash": "6a60bf745e00755ffdb1755b98be5323",
+    "semantic_hash": "6a60bf745e00755ffdb1755b98be5323"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\04-reporting-analytics-engineer.md": {
+    "mtime": 1772447297.6418798,
+    "ast_hash": "01d8621bf9f4dd18eac747a87cb2b5ab",
+    "semantic_hash": "01d8621bf9f4dd18eac747a87cb2b5ab"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\05-security-release-engineer.md": {
+    "mtime": 1772447297.6600468,
+    "ast_hash": "8f416788180bf21446db3dc5b994d3b4",
+    "semantic_hash": "8f416788180bf21446db3dc5b994d3b4"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\06-qa-test-automation-engineer.md": {
+    "mtime": 1772447297.6799912,
+    "ast_hash": "76b74d03750ec7692641715f3141f9ce",
+    "semantic_hash": "76b74d03750ec7692641715f3141f9ce"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\07-ai-cost-estimator-engineer.md": {
+    "mtime": 1772447297.6977282,
+    "ast_hash": "96f8487b2993af4ade1353872994bb5d",
+    "semantic_hash": "96f8487b2993af4ade1353872994bb5d"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\agents\\PythonDev.agent.md": {
+    "mtime": 1772125594.0384195,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\ISSUE_TEMPLATE\\bug.yml": {
+    "mtime": 1772455323.8339727,
+    "ast_hash": "98cdbdbc86016d19a33bd7c8e882b7df",
+    "semantic_hash": "98cdbdbc86016d19a33bd7c8e882b7df"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\ISSUE_TEMPLATE\\feature.yml": {
+    "mtime": 1772455323.8469863,
+    "ast_hash": "16f00659395251a90bd518ae8895a8c4",
+    "semantic_hash": "16f00659395251a90bd518ae8895a8c4"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\ISSUE_TEMPLATE\\task.yml": {
+    "mtime": 1772455323.860718,
+    "ast_hash": "5969bd7ed656be3a3d48bc32c4405ff3",
+    "semantic_hash": "5969bd7ed656be3a3d48bc32c4405ff3"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\.github\\workflows\\ci.yml": {
+    "mtime": 1772545258.3272552,
+    "ast_hash": "3cd9517936305923a8c653e8b09a04d0",
+    "semantic_hash": "3cd9517936305923a8c653e8b09a04d0"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\docs\\CONTRACTS.md": {
+    "mtime": 1772455323.8815515,
+    "ast_hash": "1bed15d471d5acd56a13d489cf0f0bd2",
+    "semantic_hash": "1bed15d471d5acd56a13d489cf0f0bd2"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\docs\\ADR\\0001-initial-architecture.md": {
+    "mtime": 1772455323.9003367,
+    "ast_hash": "1ba94d67ba1c82a5ac26328f11b7a86b",
+    "semantic_hash": "1ba94d67ba1c82a5ac26328f11b7a86b"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\db_example\\Back.png": {
+    "mtime": 1769769926.3174267,
+    "ast_hash": "367fc9ceada5d19865587e5929566452",
+    "semantic_hash": "367fc9ceada5d19865587e5929566452"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\db_example\\Front.png": {
+    "mtime": 1769769829.5912678,
+    "ast_hash": "b7e8a8782203b965fb52da427dbd2316",
+    "semantic_hash": "b7e8a8782203b965fb52da427dbd2316"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\db_example\\Left.png": {
+    "mtime": 1769769952.4109051,
+    "ast_hash": "f39cfd91f57a3c3049e89bf5f0e8d2c9",
+    "semantic_hash": "f39cfd91f57a3c3049e89bf5f0e8d2c9"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\db_example\\Right.png": {
+    "mtime": 1769769986.2903044,
+    "ast_hash": "2f346cbf9335209e0e1a08ac2de22152",
+    "semantic_hash": "2f346cbf9335209e0e1a08ac2de22152"
+  },
+  "C:\\Users\\mxgs2\\Workspaces\\VSCode\\Python\\RES\\cost_estimator\\db_example\\Top.png": {
+    "mtime": 1769770009.8378499,
+    "ast_hash": "0df7f85494e2034262bc15812872437c",
+    "semantic_hash": "0df7f85494e2034262bc15812872437c"
+  }
+}

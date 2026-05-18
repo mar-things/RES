@@ -19,21 +19,17 @@ Features implemented in Phase 3 step 1:
 Later phases will add SLA metrics, historical data, and more analytics.
 """
 
-from datetime import datetime
-from typing import Optional
-
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem,
     QPushButton, QHBoxLayout, QMessageBox,
 )
-from PySide6.QtCore import Qt
 
 from services.auth_service import get_current_user, require_role
 from services.findings_service import (
     list_pending_for_insurer,
-    acknowledge_finding,
-    approve_finding,
-    reject_finding,
+    acknowledge_finding_for_insurer,
+    approve_finding_for_insurer,
+    reject_finding_for_insurer,
 )
 
 
@@ -61,15 +57,16 @@ class InsuranceDashboard(QWidget):
         root.addWidget(self._kpi_label)
 
         self._table = QTableWidget()
-        self._table.setColumnCount(7)
+        self._table.setColumnCount(8)
         self._table.setHorizontalHeaderLabels([
-            "ID",
-            "Vehicle",
-            "Process",
-            "Reported At",
-            "Description",
-            "Cost",
-            "Actions",
+            self.tr("ID"),
+            self.tr("Vehicle"),
+            self.tr("Process"),
+            self.tr("Reported At"),
+            self.tr("Status"),
+            self.tr("Description"),
+            self.tr("Cost"),
+            self.tr("Actions"),
         ])
         self._table.setEditTriggers(QTableWidget.NoEditTriggers)
         self._table.setSelectionBehavior(QTableWidget.SelectRows)
@@ -89,7 +86,7 @@ class InsuranceDashboard(QWidget):
 
         findings = list_pending_for_insurer(self._user.insurance_company_id)
         self._kpi_label.setText(
-            self.tr("Pending findings: {count}").format(count=len(findings))
+            self.tr("Open findings: {count}").format(count=len(findings))
         )
 
         self._table.setRowCount(len(findings))
@@ -102,8 +99,9 @@ class InsuranceDashboard(QWidget):
             self._table.setItem(row, 1, QTableWidgetItem(vehicle_plate))
             self._table.setItem(row, 2, QTableWidgetItem(process_name))
             self._table.setItem(row, 3, QTableWidgetItem(reported))
-            self._table.setItem(row, 4, QTableWidgetItem(f.description))
-            self._table.setItem(row, 5, QTableWidgetItem(f"${f.additional_cost:.2f}"))
+            self._table.setItem(row, 4, QTableWidgetItem(f.status.title()))
+            self._table.setItem(row, 5, QTableWidgetItem(f.description))
+            self._table.setItem(row, 6, QTableWidgetItem(f"${f.additional_cost:.2f}"))
 
             # actions: acknowledge + approve + reject
             action_widget = QWidget()
@@ -112,6 +110,7 @@ class InsuranceDashboard(QWidget):
 
             ack_btn = QPushButton(self.tr("Acknowledge"))
             ack_btn.setFixedWidth(90)
+            ack_btn.setEnabled(f.status == "pending")
             ack_btn.clicked.connect(lambda _, fid=f.id: self._on_ack(fid))
             action_layout.addWidget(ack_btn)
 
@@ -126,7 +125,7 @@ class InsuranceDashboard(QWidget):
             action_layout.addWidget(rej_btn)
 
             action_layout.addStretch()
-            self._table.setCellWidget(row, 6, action_widget)
+            self._table.setCellWidget(row, 7, action_widget)
 
         self._table.resizeColumnsToContents()
 
@@ -136,7 +135,10 @@ class InsuranceDashboard(QWidget):
 
     def _on_ack(self, finding_id: int) -> None:
         try:
-            acknowledge_finding(finding_id)
+            acknowledge_finding_for_insurer(
+                finding_id,
+                insurance_company_id=self._user.insurance_company_id,
+            )
             QMessageBox.information(self, self.tr("Acknowledged"),
                                     self.tr("Finding has been acknowledged."))
         except Exception as exc:
@@ -146,7 +148,11 @@ class InsuranceDashboard(QWidget):
 
     def _on_approve(self, finding_id: int) -> None:
         try:
-            approve_finding(finding_id, approved_by_name=self._user.full_name)
+            approve_finding_for_insurer(
+                finding_id,
+                insurance_company_id=self._user.insurance_company_id,
+                approved_by_name=self._user.full_name,
+            )
             QMessageBox.information(self, self.tr("Approved"),
                                     self.tr("Finding budget approved."))
         except Exception as exc:
@@ -162,7 +168,11 @@ class InsuranceDashboard(QWidget):
         )
         if ans == QMessageBox.Yes:
             try:
-                reject_finding(finding_id, rejected_by_name=self._user.full_name)
+                reject_finding_for_insurer(
+                    finding_id,
+                    insurance_company_id=self._user.insurance_company_id,
+                    rejected_by_name=self._user.full_name,
+                )
                 QMessageBox.information(self, self.tr("Rejected"),
                                         self.tr("Finding has been rejected."))
             except Exception as exc:

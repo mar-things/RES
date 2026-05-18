@@ -394,19 +394,21 @@ RES/
 ## 11. Phased Roadmap
 
 ### Phase 1 — MVP: Core Tracking *(Start here)*
-- [ ] Scaffold folder structure + install dependencies
-- [ ] `core/models.py` — all ORM models
-- [ ] `core/process_engine.py` — check-in/out + severity routing
-- [ ] `core/capacity_tracker.py` — bay occupancy
-- [ ] `core/time_tracker.py` — elapsed + transit time
-- [ ] Basic PySide6 dashboard (Kanban board)
-- [ ] i18n scaffolding (English + Spanish `.ts` files)
-- [ ] `pywhatkit` client notifications
+- [x] Scaffold folder structure + install dependencies
+- [x] `core/models.py` — all ORM models
+- [x] `core/process_engine.py` — check-in/out + severity routing
+- [x] `core/capacity_tracker.py` — bay occupancy
+- [x] `core/time_tracker.py` — elapsed + transit time
+- [x] Basic PySide6 dashboard (Kanban board)
+- [x] i18n scaffolding (English + Spanish `.ts` files)
+- [x] `pywhatkit` client notifications
 
 ### Phase 2 — Findings & Insurance Dashboard
-- [ ] `core/findings_manager.py` + findings dialog (with AI cost estimator hook)
-- [ ] Insurance Dashboard (role-gated view, company-scoped data)
-- [ ] `core/rollback_manager.py` + rollback dialog
+- [x] `core/findings_manager.py` + findings dialog (with AI cost estimator hook)
+- [x] Insurance Dashboard (role-gated view, company-scoped data)
+- [x] Insurer-scoped finding mutations and unresolved queue behavior
+- [x] `core/rollback_manager.py` + rollback dialog
+- [x] Rollback manager/admin approval, prior-process validation, and atomic audit/log updates
 
 ### Phase 3 — Time Intelligence & Reporting
 - [ ] Transit time tracking
@@ -437,3 +439,29 @@ RES/
 ---
 
 ## ✅ Plan Approved — Ready for Phase 1 Execution
+
+---
+
+## 12. Current Implementation Progress
+
+As of the latest development pass, Phase 1 and the core Phase 2 workflows are
+implemented for local desktop development:
+
+- Workshop dashboard, vehicle registration, login, seeded process pipeline, and
+  role-based navigation are in place.
+- Findings can be reported from the dashboard and managed from the
+  company-scoped insurance dashboard.
+- Insurer actions are scoped to the requesting insurance company, and
+  acknowledged findings remain visible until approved or rejected.
+- Rollback is implemented through `core/rollback_manager.py`,
+  `services/rollback_service.py`, and `ui/dialogs/rollback_dialog.py`.
+- Rollback now requires manager/admin approval, a non-empty reason, a valid
+  prior severity-applicable target process, and target bay capacity.
+- Rollback updates are atomic: audit row, source log checkout, target log
+  check-in, and transition record are committed together or rolled back
+  together.
+
+Verified regression coverage now includes focused findings and rollback tests.
+The next implementation focus is broader process-engine correctness: one open
+process log per vehicle, legal forward routing, waiting-state semantics, and
+integration tests for the full repair lifecycle.

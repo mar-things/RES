@@ -14,13 +14,20 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QPushButton, QLabel, QStackedWidget, QFrame, QSizePolicy,
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
 from services.auth_service import get_current_user, logout, has_role
 from ui.dashboard_widget import DashboardWidget
 from ui.login_screen import LoginScreen
 from ui.insurance_dashboard import InsuranceDashboard
+
+
+PAGE_DASHBOARD = 0
+PAGE_VEHICLE_DETAIL = 1
+PAGE_INSURANCE = 2
+PAGE_REPORTS = 3
+PAGE_SETTINGS = 4
 
 
 class PlaceholderWidget(QWidget):
@@ -109,7 +116,12 @@ class MainWindow(QMainWindow):
         root_layout.addWidget(self._stack)
 
         # Register pages
-        self._dashboard = DashboardWidget()
+        self._dashboard = self._build_authorized_page(
+            PAGE_DASHBOARD,
+            DashboardWidget,
+            self.tr("Workshop Dashboard"),
+            self.tr("This user is not allowed to view workshop operations."),
+        )
         self._stack.addWidget(self._dashboard)
 
         # Index 1: Vehicle Detail (Phase 1+)
@@ -119,7 +131,12 @@ class MainWindow(QMainWindow):
         ))
 
         # Index 2: Insurance Dashboard (Phase 3)
-        self._stack.addWidget(InsuranceDashboard())
+        self._stack.addWidget(self._build_authorized_page(
+            PAGE_INSURANCE,
+            InsuranceDashboard,
+            self.tr("Insurance Dashboard"),
+            self.tr("This user is not allowed to view insurer workflows."),
+        ))
 
         # Index 3: Reports (Phase 4)
         self._stack.addWidget(PlaceholderWidget(
@@ -133,11 +150,13 @@ class MainWindow(QMainWindow):
             self.tr("Phase 6: User management, language, and theme config.")
         ))
 
-        self._stack.setCurrentIndex(0)
+        start_index = PAGE_INSURANCE if has_role("insurance-viewer") else PAGE_DASHBOARD
+        self._stack.setCurrentIndex(start_index)
         self.setCentralWidget(central)
 
         # Apply role visibility to nav buttons
         self._apply_role_visibility()
+        self._set_active_nav(start_index)
 
         # Update window title with username
         user = get_current_user()
@@ -180,10 +199,10 @@ class MainWindow(QMainWindow):
         layout.addWidget(sep)
 
         # Navigation buttons
-        self._nav_dashboard = self._nav_button(self.tr("📋  Dashboard"), 0)
-        self._nav_insurance = self._nav_button(self.tr("🏢  Insurance"), 2)
-        self._nav_reports = self._nav_button(self.tr("📊  Reports"), 3)
-        self._nav_settings = self._nav_button(self.tr("⚙️  Settings"), 4)
+        self._nav_dashboard = self._nav_button(self.tr("📋  Dashboard"), PAGE_DASHBOARD)
+        self._nav_insurance = self._nav_button(self.tr("🏢  Insurance"), PAGE_INSURANCE)
+        self._nav_reports = self._nav_button(self.tr("📊  Reports"), PAGE_REPORTS)
+        self._nav_settings = self._nav_button(self.tr("⚙️  Settings"), PAGE_SETTINGS)
 
         layout.addWidget(self._nav_dashboard)
         layout.addWidget(self._nav_insurance)
@@ -205,7 +224,7 @@ class MainWindow(QMainWindow):
         logout_btn.clicked.connect(self._on_logout)
         layout.addWidget(logout_btn)
 
-        self._set_active_nav(0)  # Default to dashboard
+        self._set_active_nav(PAGE_DASHBOARD)  # Default until role routing is applied
         return sidebar
 
     def _nav_button(self, label: str, page_index: int) -> QPushButton:
@@ -231,6 +250,8 @@ class MainWindow(QMainWindow):
         Args:
             index: Index in the QStackedWidget.
         """
+        if not self._is_page_allowed(index):
+            return
         self._stack.setCurrentIndex(index)
         self._set_active_nav(index)
 
@@ -242,10 +263,10 @@ class MainWindow(QMainWindow):
             active_index: The page index of the currently active view.
         """
         nav_map = {
-            0: self._nav_dashboard,
-            2: self._nav_insurance,
-            3: self._nav_reports,
-            4: self._nav_settings,
+            PAGE_DASHBOARD: self._nav_dashboard,
+            PAGE_INSURANCE: self._nav_insurance,
+            PAGE_REPORTS: self._nav_reports,
+            PAGE_SETTINGS: self._nav_settings,
         }
         for idx, btn in nav_map.items():
             btn.setProperty("active", str(idx == active_index).lower())
@@ -263,9 +284,50 @@ class MainWindow(QMainWindow):
         is_admin_or_manager = has_role("admin", "manager")
         is_insurance = has_role("insurance-viewer")
 
+        self._nav_dashboard.setVisible(not is_insurance)
         self._nav_insurance.setVisible(is_admin_or_manager or is_insurance)
         self._nav_reports.setVisible(is_admin_or_manager)
         self._nav_settings.setVisible(has_role("admin"))
+
+    def _is_page_allowed(self, index: int) -> bool:
+        """
+        Return whether the current user may open a page.
+
+        Hidden navigation buttons are only a convenience; this method is the
+        actual page-level guard used before constructing or navigating views.
+        """
+        if index in (PAGE_DASHBOARD, PAGE_VEHICLE_DETAIL):
+            return not has_role("insurance-viewer")
+        if index == PAGE_INSURANCE:
+            return has_role("insurance-viewer", "admin", "manager")
+        if index == PAGE_REPORTS:
+            return has_role("admin", "manager")
+        if index == PAGE_SETTINGS:
+            return has_role("admin")
+        return False
+
+    def _build_authorized_page(
+        self,
+        index: int,
+        widget_factory,
+        title: str,
+        unauthorized_message: str,
+    ) -> QWidget:
+        """
+        Build a page only when the current role can access it.
+
+        Args:
+            index: Page index used by the authorization map.
+            widget_factory: Callable returning the protected QWidget.
+            title: Placeholder title when access is denied.
+            unauthorized_message: Placeholder explanation when access is denied.
+
+        Returns:
+            The protected widget or an unauthorized placeholder.
+        """
+        if self._is_page_allowed(index):
+            return widget_factory()
+        return PlaceholderWidget(title, unauthorized_message)
 
     # ------------------------------------------------------------------
     # Logout

@@ -26,8 +26,10 @@
 - [x] `core/findings_manager.py` — findings, SLA timestamps, approval flow
 - [x] `ui/findings_dialog.py` — manual cost entry + future AI cost estimator hook
 - [x] `ui/insurance_dashboard.py` — role-gated, company-scoped KPI view
-- [ ] `core/rollback_manager.py` — rollback to any prior process, approval + audit trail
-- [ ] `ui/rollback_dialog.py` — select target process + mandatory reason
+- [x] `core/rollback_manager.py` — atomic rollback to prior process, manager/admin approval + audit trail
+- [x] `services/rollback_service.py` — rollback service boundary for UI workflows
+- [x] `ui/dialogs/rollback_dialog.py` — select valid prior process + mandatory reason
+- [x] Dashboard rollback action wired and restricted to manager/admin users
 
 ## Phase 4: Time Intelligence & Reporting
 - [ ] Transit time aggregation reports
@@ -58,7 +60,9 @@
 - [ ] Future: local YOLOv8 model + IP camera hardware
 
 ## Phase 8: Verification & Testing
-- [ ] Unit tests for all core modules (process engine, rollback, findings, capacity, time tracker)
+- [ ] Unit tests for all core modules (process engine, capacity, time tracker)
+- [x] Findings manager/service regression tests
+- [x] Rollback manager/service regression tests
 - [ ] Integration test for full process pipeline
 - [ ] Integration test for rollback workflow
 - [ ] Test notification delivery (WhatsApp + SMS)

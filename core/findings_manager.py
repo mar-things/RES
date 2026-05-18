@@ -16,6 +16,38 @@ from core.database import get_session
 from core.models import Finding, Vehicle, ProcessLog
 
 
+UNRESOLVED_FINDING_STATUSES = ("pending", "acknowledged")
+
+
+def _query_finding_for_insurer(session, finding_id: int, insurance_company_id: int) -> Finding:
+    """
+    Load a finding only if it belongs to the given insurer.
+
+    Args:
+        session: Active SQLAlchemy session.
+        finding_id: ID of the finding to load.
+        insurance_company_id: Insurance company that must own the vehicle.
+
+    Returns:
+        The matching Finding ORM object.
+
+    Raises:
+        ValueError: If the finding does not exist for this insurer.
+    """
+    finding = (
+        session.query(Finding)
+        .join(Vehicle)
+        .filter(Finding.id == finding_id)
+        .filter(Vehicle.insurance_company_id == insurance_company_id)
+        .first()
+    )
+    if not finding:
+        raise ValueError(
+            f"Finding {finding_id} not found for insurer {insurance_company_id}."
+        )
+    return finding
+
+
 def report_finding(
     vehicle_id: int,
     process_log_id: int,
@@ -71,6 +103,23 @@ def acknowledge_finding(finding_id: int) -> Finding:
         return finding
 
 
+def acknowledge_finding_for_insurer(
+    finding_id: int, insurance_company_id: int
+) -> Finding:
+    """
+    Acknowledge a finding through an insurer-scoped boundary.
+
+    This prevents an insurance user from mutating findings for vehicles
+    owned by another insurer.
+    """
+    with get_session() as session:
+        finding = _query_finding_for_insurer(session, finding_id, insurance_company_id)
+        if finding.status == "pending":
+            finding.status = "acknowledged"
+            finding.insurance_acknowledged_at = datetime.utcnow()
+        return finding
+
+
 def approve_finding(finding_id: int, approved_by_name: str) -> Finding:
     """
     Record that an insurance company has approved the additional budget.
@@ -97,6 +146,31 @@ def approve_finding(finding_id: int, approved_by_name: str) -> Finding:
         return finding
 
 
+def approve_finding_for_insurer(
+    finding_id: int, insurance_company_id: int, approved_by_name: str
+) -> Finding:
+    """
+    Approve a finding through an insurer-scoped boundary.
+
+    Pending findings are implicitly acknowledged first so the SLA trail is
+    complete even when an insurer approves without pressing Acknowledge.
+    """
+    with get_session() as session:
+        finding = _query_finding_for_insurer(session, finding_id, insurance_company_id)
+        if finding.status == "pending":
+            finding.insurance_acknowledged_at = datetime.utcnow()
+        finding.status = "approved"
+        finding.approved_at = datetime.utcnow()
+        finding.approved_by = approved_by_name
+
+        vehicle = session.query(Vehicle).get(finding.vehicle_id)
+        if vehicle:
+            current_budget = vehicle.approved_budget or 0.0
+            vehicle.approved_budget = current_budget + finding.additional_cost
+
+        return finding
+
+
 def reject_finding(finding_id: int, rejected_by_name: str) -> Finding:
     """Record that an insurance company rejected the finding."""
     with get_session() as session:
@@ -106,6 +180,26 @@ def reject_finding(finding_id: int, rejected_by_name: str) -> Finding:
 
         finding.status = "rejected"
         finding.approved_at = datetime.utcnow()  # Reusing datetime as resolution time
+        finding.approved_by = rejected_by_name
+
+        return finding
+
+
+def reject_finding_for_insurer(
+    finding_id: int, insurance_company_id: int, rejected_by_name: str
+) -> Finding:
+    """
+    Reject a finding through an insurer-scoped boundary.
+
+    The finding must belong to a vehicle associated with the requesting
+    insurer, otherwise a ValueError is raised.
+    """
+    with get_session() as session:
+        finding = _query_finding_for_insurer(session, finding_id, insurance_company_id)
+        if finding.status == "pending":
+            finding.insurance_acknowledged_at = datetime.utcnow()
+        finding.status = "rejected"
+        finding.approved_at = datetime.utcnow()
         finding.approved_by = rejected_by_name
 
         return finding
@@ -123,11 +217,12 @@ def get_findings_for_vehicle(vehicle_id: int) -> list[Finding]:
 
 
 def list_pending_findings_for_insurer(insurance_company_id: int) -> list[Finding]:
-    """Return all currently pending findings for a given insurer.
+    """Return unresolved findings for a given insurer.
 
     The returned Finding objects include the related Vehicle and
     ProcessLog/process so the UI can display identifying information
-    without additional queries.
+    without additional queries. "Unresolved" means pending acknowledgment
+    or acknowledged but not yet approved/rejected.
     """
     with get_session() as session:
         return (
@@ -138,7 +233,7 @@ def list_pending_findings_for_insurer(insurance_company_id: int) -> list[Finding
                 joinedload(Finding.process_log).joinedload(ProcessLog.process),
             )
             .filter(Vehicle.insurance_company_id == insurance_company_id)
-            .filter(Finding.status == "pending")
+            .filter(Finding.status.in_(UNRESOLVED_FINDING_STATUSES))
             .order_by(Finding.reported_at.desc())
             .all()
         )

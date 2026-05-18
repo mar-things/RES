@@ -19,7 +19,7 @@ from typing import Optional
 
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel,
-    QScrollArea, QFrame, QPushButton, QSizePolicy,
+    QScrollArea, QFrame, QPushButton,
     QMenu,
 )
 from PySide6.QtGui import QCursor
@@ -27,6 +27,7 @@ from PySide6.QtCore import Qt, QTimer
 
 from core.process_engine import get_active_processes, get_all_active_vehicle_logs
 from core.capacity_tracker import CapacityTracker
+from services.auth_service import has_role
 from ui.vehicle_card_widget import VehicleCardWidget
 from ui.dialogs.register_vehicle_dialog import RegisterVehicleDialog
 
@@ -235,7 +236,9 @@ class DashboardWidget(QWidget):
         """
         menu = QMenu(self)
         report_act = menu.addAction(self.tr("Report Finding"))
-        rollback_act = menu.addAction(self.tr("Roll Back"))
+        rollback_act = None
+        if has_role("manager", "admin"):
+            rollback_act = menu.addAction(self.tr("Roll Back"))
         action = menu.exec(QCursor.pos())
 
         if action == report_act:
@@ -243,7 +246,7 @@ class DashboardWidget(QWidget):
             from core.process_engine import get_active_log
             log = get_active_log(vehicle_id, process_id)
             log_id = log.id if log else None
-            from ui.findings_dialog import FindingsDialog
+            from ui.dialogs.findings_dialog import FindingsDialog
 
             dlg = FindingsDialog(vehicle_id=vehicle_id, process_log_id=log_id, parent=self)
             if dlg.exec():
@@ -251,8 +254,8 @@ class DashboardWidget(QWidget):
                 self.refresh()
                 print(f"[Dashboard] Finding reported for vehicle {vehicle_id}")
 
-        elif action == rollback_act:
-            from ui.rollback_dialog import RollbackDialog
+        elif rollback_act is not None and action == rollback_act:
+            from ui.dialogs.rollback_dialog import RollbackDialog
 
             dlg = RollbackDialog(vehicle_id=vehicle_id, current_process_id=process_id, parent=self)
             if dlg.exec():

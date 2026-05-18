@@ -2,8 +2,9 @@ SHELL := /bin/bash
 
 .DEFAULT_GOAL := help
 
-run:
+run: ## xvfb-run -a uv run python main.py
 	uv run python main.py
+	
 
 help: ## Show commands
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'
