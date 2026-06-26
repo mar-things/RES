@@ -20,6 +20,7 @@ from typing import Generator
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
+from sqlalchemy.pool import StaticPool
 
 from config import AppConfig
 
@@ -28,14 +29,15 @@ from config import AppConfig
 # ORM Base
 # ---------------------------------------------------------------------------
 
-class Base(DeclarativeBase):
-    """
-    Declarative base class for all ORM models.
+if "Base" not in globals():
+    class Base(DeclarativeBase):
+        """
+        Declarative base class for all ORM models.
 
-    All models in models.py inherit from this class so SQLAlchemy
-    can discover and manage them as a unified schema.
-    """
-    pass
+        All models in models.py inherit from this class so SQLAlchemy
+        can discover and manage them as a unified schema.
+        """
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -52,11 +54,17 @@ def _create_engine():
     Returns:
         A configured SQLAlchemy Engine instance.
     """
-    engine = create_engine(
-        AppConfig.DATABASE_URL,
-        echo=AppConfig.IS_DEV,   # Log SQL in development; silent in production
-        future=True,
-    )
+    engine_kwargs = {
+        "echo": AppConfig.IS_DEV,   # Log SQL in development; silent in production
+        "future": True,
+    }
+    if AppConfig.DATABASE_URL == "sqlite:///:memory:":
+        engine_kwargs.update({
+            "connect_args": {"check_same_thread": False},
+            "poolclass": StaticPool,
+        })
+
+    engine = create_engine(AppConfig.DATABASE_URL, **engine_kwargs)
 
     # Enable WAL mode for SQLite (ignored silently for PostgreSQL)
     if "sqlite" in AppConfig.DATABASE_URL:

@@ -21,6 +21,8 @@ from services.auth_service import get_current_user, logout, has_role
 from ui.dashboard_widget import DashboardWidget
 from ui.login_screen import LoginScreen
 from ui.insurance_dashboard import InsuranceDashboard
+from ui.reports_view import ReportsView
+from ui.settings_view import SettingsView
 
 
 PAGE_DASHBOARD = 0
@@ -138,16 +140,20 @@ class MainWindow(QMainWindow):
             self.tr("This user is not allowed to view insurer workflows."),
         ))
 
-        # Index 3: Reports (Phase 4)
-        self._stack.addWidget(PlaceholderWidget(
+        # Index 3: Reports
+        self._stack.addWidget(self._build_authorized_page(
+            PAGE_REPORTS,
+            ReportsView,
             self.tr("Advanced Analytics"),
-            self.tr("Phase 4: Transit time, efficiency, and cost reporting.")
+            self.tr("This user is not allowed to view reports."),
         ))
 
-        # Index 4: Settings / Admin (Phase 6)
-        self._stack.addWidget(PlaceholderWidget(
+        # Index 4: Settings / Admin
+        self._stack.addWidget(self._build_authorized_page(
+            PAGE_SETTINGS,
+            SettingsView,
             self.tr("System Settings"),
-            self.tr("Phase 6: User management, language, and theme config.")
+            self.tr("This user is not allowed to view system settings."),
         ))
 
         start_index = PAGE_INSURANCE if has_role("insurance-viewer") else PAGE_DASHBOARD

@@ -6,18 +6,10 @@ real workspace data.
 """
 
 import os
-import importlib
 from datetime import datetime
 
 # Force an in-memory database before any module that reads AppConfig is imported
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-
-import config
-import core.database
-
-# reload to ensure new settings take effect
-importlib.reload(config)
-importlib.reload(core.database)
 
 from core.database import init_db, get_session  # noqa: E402
 from core.models import Customer, Vehicle, Process, ProcessLog  # noqa: E402

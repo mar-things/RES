@@ -9,6 +9,10 @@ dependencies = [
   "sqlalchemy==2.0.47",
   "bcrypt==5.0.0",
   "python-dotenv==1.2.2",
+  "pyqtgraph==0.13.7",
+  "twilio==9.8.7",
+  "openai==2.9.0",
+  "psycopg2-binary==2.9.11",
 ]
 
 [dependency-groups]

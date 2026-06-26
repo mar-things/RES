@@ -50,11 +50,13 @@ class CapacityTracker:
             processes = session.query(Process).filter_by(is_active=True).all()
 
             for proc in processes:
-                # Count vehicles currently 'in_progress' or 'waiting' in this bay
+                # Count vehicles physically occupying this bay. Waiting logs
+                # represent the queue for this process, not bay occupancy.
                 active_count = (
                     session.query(ProcessLog)
                     .filter_by(process_id=proc.id)
-                    .filter(ProcessLog.status.in_(["in_progress", "waiting"]))
+                    .filter(ProcessLog.checkout_time.is_(None))
+                    .filter(ProcessLog.status == "in_progress")
                     .count()
                 )
                 self._bay_info[proc.id] = {

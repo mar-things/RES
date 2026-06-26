@@ -3,7 +3,11 @@ dotenv==0.9.9
 greenlet==3.3.2
 PySide6_Addons==6.10.2
 PySide6_Essentials==6.10.2
+pyqtgraph==0.13.7
 python-dotenv==1.2.2
+twilio==9.8.7
+openai==2.9.0
+psycopg2-binary==2.9.11
 shiboken6==6.10.2
 SQLAlchemy==2.0.47
 typing_extensions==4.15.0

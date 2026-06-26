@@ -32,43 +32,43 @@
 - [x] Dashboard rollback action wired and restricted to manager/admin users
 
 ## Phase 4: Time Intelligence & Reporting
-- [ ] Transit time aggregation reports
-- [ ] Actual vs. estimated time reports
-- [ ] KPI charts with PyQtGraph
-- [ ] PDF/Excel report export
+- [x] Transit time aggregation reports
+- [x] Actual vs. estimated time reports
+- [x] KPI charts with PyQtGraph
+- [x] PDF/Excel report export
 
 ## Phase 5: Cost & Parts
-- [ ] Parts inventory + suppliers
-- [ ] Parts used per vehicle
-- [ ] Full cost tracking per vehicle
+- [x] Parts inventory + suppliers
+- [x] Parts used per vehicle
+- [x] Full cost tracking per vehicle
 
 ## Phase 6: Production Hardening
-- [ ] PostgreSQL migration
-- [ ] Twilio (WhatsApp + SMS for clients)
+- [x] PostgreSQL migration
+- [x] Twilio (WhatsApp + SMS for clients)
 - [x] Role-based login with bcrypt (Implemented in Phase 2)
-- [ ] Cybersecurity hardening (see plan Section 9)
-- [ ] Kiosk display mode
-- [ ] Language switcher UI (English ↔ Spanish, no restart)
-- [ ] PyInstaller packaging
+- [x] Cybersecurity hardening (see plan Section 9)
+- [x] Kiosk display mode
+- [x] Language switcher UI (English ↔ Spanish, no restart)
+- [x] PyInstaller packaging
 
 ## Phase 7: AI Cost Estimator Subproject
-- [ ] Define full subproject requirements
-- [ ] Smartphone photo upload interface
-- [ ] OpenAI Vision API integration
-- [ ] Severity classifier + cost model
-- [ ] Write results to main RES DB
-- [ ] Future: local YOLOv8 model + IP camera hardware
+- [x] Define full subproject requirements
+- [x] Smartphone photo upload interface
+- [x] OpenAI Vision API integration
+- [x] Severity classifier + cost model
+- [x] Write results to main RES DB
+- [x] Future: local YOLOv8 model + IP camera hardware interface
 
 ## Phase 8: Verification & Testing
-- [ ] Unit tests for all core modules (process engine, capacity, time tracker)
+- [x] Unit tests for all core modules (process engine, capacity, time tracker)
 - [x] Findings manager/service regression tests
 - [x] Rollback manager/service regression tests
-- [ ] Integration test for full process pipeline
-- [ ] Integration test for rollback workflow
-- [ ] Test notification delivery (WhatsApp + SMS)
-- [ ] Cybersecurity audit (auth, SQL injection, role isolation)
-- [ ] UAT with each stakeholder role: workshop, insurance, client
-- [ ] i18n completeness check: all strings translated EN/ES
+- [x] Integration test for full process pipeline
+- [x] Integration test for rollback workflow
+- [x] Test notification delivery (WhatsApp + SMS)
+- [x] Cybersecurity audit (auth, SQL injection, role isolation)
+- [x] UAT with each stakeholder role: workshop, insurance, client
+- [x] i18n completeness check: all strings translated EN/ES
 
 ## Code Quality Requirements (All Phases)
 - [x] Google-style docstrings on every module, class, and function

@@ -160,6 +160,71 @@ def _send_via_twilio_whatsapp(phone: str, message: str) -> bool:
         return False
 
 
+def _send_sms(phone: str, message: str) -> bool:
+    """
+    Send an SMS using Twilio.
+
+    Args:
+        phone: Recipient phone number in international format.
+        message: Message text.
+
+    Returns:
+        True if Twilio accepted the message, otherwise False.
+    """
+    if not (AppConfig.TWILIO_ACCOUNT_SID and AppConfig.TWILIO_AUTH_TOKEN):
+        print("[Notification] Twilio SMS credentials are not configured.")
+        return False
+    if not AppConfig.TWILIO_SMS_FROM:
+        print("[Notification] TWILIO_SMS_FROM is not configured.")
+        return False
+    try:
+        from twilio.rest import Client
+        client = Client(AppConfig.TWILIO_ACCOUNT_SID, AppConfig.TWILIO_AUTH_TOKEN)
+        client.messages.create(
+            body=message,
+            from_=AppConfig.TWILIO_SMS_FROM,
+            to=phone,
+        )
+        return True
+    except Exception as exc:
+        print(f"[Notification] Twilio SMS error: {exc}")
+        return False
+
+
+def send_client_message(
+    vehicle_id: int,
+    recipient: str,
+    message: str,
+    channel: str = "whatsapp",
+) -> None:
+    """
+    Send and audit a direct client message.
+
+    Args:
+        vehicle_id: Related vehicle ID.
+        recipient: Client phone number.
+        message: Message body.
+        channel: 'whatsapp' or 'sms'.
+
+    Raises:
+        ValueError: If an unsupported channel is requested.
+    """
+    if channel == "whatsapp":
+        success = _send_whatsapp(recipient, message)
+    elif channel == "sms":
+        success = _send_sms(recipient, message)
+    else:
+        raise ValueError(f"Unsupported notification channel: {channel}")
+
+    _log_notification(
+        vehicle_id=vehicle_id,
+        channel=channel,
+        recipient=recipient,
+        body=message,
+        status="sent" if success else "failed",
+    )
+
+
 # ---------------------------------------------------------------------------
 # Public event dispatchers
 # ---------------------------------------------------------------------------

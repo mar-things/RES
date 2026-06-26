@@ -20,7 +20,7 @@ from typing import Optional
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel,
     QScrollArea, QFrame, QPushButton,
-    QMenu,
+    QMenu, QMessageBox,
 )
 from PySide6.QtGui import QCursor
 from PySide6.QtCore import Qt, QTimer
@@ -236,6 +236,8 @@ class DashboardWidget(QWidget):
         """
         menu = QMenu(self)
         report_act = menu.addAction(self.tr("Report Finding"))
+        advance_act = menu.addAction(self.tr("Advance to Next Process"))
+        activate_act = menu.addAction(self.tr("Activate Waiting Vehicle"))
         rollback_act = None
         if has_role("manager", "admin"):
             rollback_act = menu.addAction(self.tr("Roll Back"))
@@ -253,6 +255,41 @@ class DashboardWidget(QWidget):
                 # refresh dashboard after reporting
                 self.refresh()
                 print(f"[Dashboard] Finding reported for vehicle {vehicle_id}")
+
+        elif action == advance_act:
+            from core.process_engine import advance_vehicle
+
+            try:
+                _, next_log = advance_vehicle(vehicle_id, process_id)
+                if next_log:
+                    QMessageBox.information(
+                        self,
+                        self.tr("Vehicle Advanced"),
+                        self.tr("Vehicle moved to the next process."),
+                    )
+                else:
+                    QMessageBox.information(
+                        self,
+                        self.tr("Repair Complete"),
+                        self.tr("Vehicle completed its configured process route."),
+                    )
+                self.refresh()
+            except Exception as exc:
+                QMessageBox.warning(self, self.tr("Advance Failed"), str(exc))
+
+        elif action == activate_act:
+            from core.process_engine import activate_waiting
+
+            try:
+                activate_waiting(vehicle_id, process_id)
+                QMessageBox.information(
+                    self,
+                    self.tr("Vehicle Activated"),
+                    self.tr("Waiting vehicle is now in progress."),
+                )
+                self.refresh()
+            except Exception as exc:
+                QMessageBox.warning(self, self.tr("Activation Failed"), str(exc))
 
         elif rollback_act is not None and action == rollback_act:
             from ui.dialogs.rollback_dialog import RollbackDialog
